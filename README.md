@@ -48,7 +48,9 @@ class MineUtil {
     
     // Notice that we can pass in CommandSender for commands that can be used by the console.
     @Command(identifier="mine {name} addblock", permissions = "mines.addblock", desc = "Adds a block to a mine.", longDesc = "Adds a block to a mine. The chance of the block appearing should be out of 100%.")
-    public void addBlockToMine(CommandSender sender, @Arg(name = "name") Mine mine, @Arg(name = "block", desc = "The name or ID of the block to add.") Block block, @Arg(name="chance", validators="[min=0][max=100]") double chance) {
+    public void addBlockToMine(CommandSender sender, 
+                            @Arg(name = "name") Mine mine, 
+                            @Arg(name = "block", desc = "The name or ID of the block to add.") Block block, @Arg(name="chance", validators="[min=0][max=100]") double chance) {
         mine.addBlock(block, chance);
     }
     
