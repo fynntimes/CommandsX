@@ -1,10 +1,15 @@
 package me.faizaand.commandsx;
 
+import java.lang.annotation.*;
+
 /**
  * Annotates an argument for a command method.
  *
  * @since 1.0
  */
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.PARAMETER)
+@Documented
 public @interface Arg {
 
     /**

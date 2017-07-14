@@ -1,5 +1,7 @@
 package me.faizaand.commandsx;
 
+import java.lang.annotation.*;
+
 /**
  * Annotates a flag argument, which is a boolean that's true if the user types
  * the flag, and false if they don't. As a result, these are always optional.
@@ -9,6 +11,9 @@ package me.faizaand.commandsx;
  *
  * @since 1.0
  */
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.PARAMETER)
+@Documented
 public @interface Flag {
 
     /**

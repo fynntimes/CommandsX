@@ -64,8 +64,16 @@ public class ParsedCommand {
         return arguments;
     }
 
+    public void setArguments(ArgumentMap arguments) {
+        this.arguments = arguments;
+    }
+
     public ParsedCommand getParent() {
         return parent;
+    }
+
+    public void setParent(ParsedCommand parent) {
+        this.parent = parent;
     }
 
     public List<ParsedCommand> getChildren() {
