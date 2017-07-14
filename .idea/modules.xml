@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/commandsx.iml" filepath="$PROJECT_DIR$/.idea/modules/commandsx.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/commandsx_main.iml" filepath="$PROJECT_DIR$/.idea/modules/commandsx_main.iml" group="commandsx" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/commandsx_test.iml" filepath="$PROJECT_DIR$/.idea/modules/commandsx_test.iml" group="commandsx" />
+    </modules>
+  </component>
+</project>
