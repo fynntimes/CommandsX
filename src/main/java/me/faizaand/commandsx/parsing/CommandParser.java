@@ -4,8 +4,7 @@ import me.faizaand.commandsx.*;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 /**
  * Reads each method in a class that is annotated by a {@link me.faizaand.commandsx.Command} annotation,
@@ -22,24 +21,28 @@ public class CommandParser {
 
         for (Method method : methods) {
             if (method.isAnnotationPresent(Command.class)) {
-                ParsedCommand parsedCommand = parseCommandMethod(method);
-                commands.add(parsedCommand);
+                List<ParsedCommand> parsedCommand = parseCommandMethod(method);
+                commands.addAll(parsedCommand);
             }
         }
 
         return commands;
     }
 
-    private ParsedCommand parseCommandMethod(Method method) {
+    private List<ParsedCommand> parseCommandMethod(Method method) {
         Command annotation = method.getAnnotation(Command.class);
+        List<ParsedCommand> commands = new ArrayList<>();
 
         // Extract each command identifier here
         String[] identifiers = annotation.identifier().split(" ");
 
         ParsedCommand currentParent = null;
+        Map<Integer, String> inlineMap = new HashMap<>();
+
         for (int i = 0; i < identifiers.length; i++) {
             String identifier = identifiers[i];
             if (isInlineArgumentIdentifier(identifier)) {
+                inlineMap.put(i, identifier);
                 continue; // for now
             }
 
@@ -47,21 +50,25 @@ public class CommandParser {
                 currentParent =
                     new RootCommand(identifier, annotation.desc(), annotation.longDesc(),
                         annotation.permissions());
+                commands.add(currentParent);
+            } else {
+                currentParent =
+                    new ParsedCommand(identifier, annotation.desc(), annotation.longDesc(),
+                        annotation.permissions(), currentParent);
+                commands.add(currentParent);
             }
-            currentParent = new ParsedCommand(identifier, annotation.desc(), annotation.longDesc(),
-                annotation.permissions(), currentParent);
-            if (countSubCommandsInIdentifier(identifiers) == i) {
+
+            if ((identifiers.length - 1) == i) {
                 // This is our subcommand's definition.
                 // We can do our registration magic here.
                 ArgumentMap argumentMap = parseArguments(method);
+                configureInlineArguments(argumentMap, inlineMap);
                 currentParent.setArguments(argumentMap);
-
-                return currentParent;
             }
 
         }
 
-        return null;
+        return commands;
     }
 
     private ArgumentMap parseArguments(Method method) {
@@ -75,34 +82,32 @@ public class CommandParser {
                     new Argument(annotation.name(), annotation.desc(), annotation.def(),
                         annotation.validators());
                 map.addArgument(parameter.getType(), argument);
+            } else if (parameter.isAnnotationPresent(Flag.class)) {
+                Flag annotation = parameter.getAnnotation(Flag.class);
+
+                Argument argument =
+                    new Argument(String.valueOf(annotation.name()), annotation.desc(), "false",
+                        new String[] {});
+                map.addArgument(Boolean.class, argument);
             }
         }
 
         return map;
     }
 
-    /**
-     * Counts the sub commands that are present in an array of command identifier.
-     * This will exclude the root command (i.e. one is subtracted from the count).
-     * This is useful to filter out the inline arguments.
-     *
-     * @param identifiers The array of identifiers, split at the " " space.
-     * @return The count of sub commands.
-     */
-    private int countSubCommandsInIdentifier(String[] identifiers) {
-        int count = 0;
-
-        // Inline arguments are defined with {curly brackets}.
-        // These are counted as arguments and not sub commands.
-        // So, we'll filter them out here.
-        for (String identifier : identifiers) {
-            if (!isInlineArgumentIdentifier(identifier)) {
-                count++;
+    private void configureInlineArguments(ArgumentMap map, Map<Integer, String> inlineMap) {
+        for (Map.Entry<Integer, String> inlineEntry : inlineMap.entrySet()) {
+            String inlineArgName = inlineEntry.getValue();
+            Optional<Argument> argumentOfName =
+                map.getArgumentOfName(removeInlineMarkers(inlineArgName));
+            if (!argumentOfName.isPresent()) {
+                System.err.println("Argument '" + removeInlineMarkers(inlineArgName)
+                    + "' is inline, but no @Arg annotation exists for it!");
+                continue; // Skip this one
             }
-        }
 
-        // We subtract one here to disregard the root command.
-        return count - 1;
+            argumentOfName.get().setInline(true); // We'll set it inline
+        }
     }
 
     /**
@@ -115,6 +120,16 @@ public class CommandParser {
      */
     private boolean isInlineArgumentIdentifier(String identifier) {
         return identifier.matches("\\{(.*?)}");
+    }
+
+    /**
+     * Removes the curly brackets that denote an inline argument.
+     *
+     * @param identifier The identifier with the brackets on it.
+     * @return The identifier without the brackets.
+     */
+    private String removeInlineMarkers(String identifier) {
+        return identifier.replaceAll("[{}]", "");
     }
 
 }

@@ -52,6 +52,11 @@ public class ArgumentMap {
         return Optional.ofNullable(argumentMap.getOrDefault(type, null));
     }
 
+    public Optional<Argument> getArgumentOfName(String name) {
+        return argumentMap.values().stream().filter(argument -> argument.getName().equals(name))
+            .findFirst();
+    }
+
     /**
      * Returns the type of a certain argument.
      *
@@ -69,4 +74,17 @@ public class ArgumentMap {
             .flatMap(classArgumentEntry -> Optional.ofNullable(classArgumentEntry.getKey()));
     }
 
+    @Override public String toString() {
+        StringBuilder builder = new StringBuilder();
+        Set<Map.Entry<Class<?>, Argument>> entries = argumentMap.entrySet();
+        for (Map.Entry<Class<?>, Argument> entry : entries) {
+            builder.append(entry.getKey()).append(" -> ").append(entry.getValue().getName())
+                .append(" (").append(entry.getValue().getDescription()).append(")");
+            if(entry.getValue().isInline()) {
+                builder.append(" |INLINE|");
+            }
+            builder.append("\n");
+        }
+        return builder.toString();
+    }
 }

@@ -44,7 +44,9 @@ public class ParsedCommand {
         this.children = new ArrayList<>();
 
         // We're a child of our parent, let's let it know!
-        this.parent.getChildren().add(this);
+        if (this.parent != null) {
+            this.parent.getChildren().add(this);
+        }
     }
 
     public String getName() {

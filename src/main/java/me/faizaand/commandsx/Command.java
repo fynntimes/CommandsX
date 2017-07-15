@@ -40,7 +40,7 @@ public @interface Command {
      *
      * @return The permissions for the command.
      */
-    String[] permissions();
+    String[] permissions() default "";
 
     /**
      * A short description of the command, telling the user what it does in short terms.
