@@ -7,9 +7,7 @@ import java.lang.annotation.*;
  *
  * @since 1.0
  */
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.PARAMETER)
-@Documented
+@Retention(RetentionPolicy.RUNTIME) @Target(ElementType.PARAMETER) @Documented
 public @interface Arg {
 
     /**
@@ -44,5 +42,12 @@ public @interface Arg {
      * @return The validator queries for this argument.
      */
     String[] validators() default "";
+
+    /**
+     * Whether this is an inline argument or not.
+     *
+     * @return true if this is an inline argument, false otherwise.
+     */
+    boolean inline() default false;
 
 }

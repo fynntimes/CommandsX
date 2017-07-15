@@ -42,6 +42,9 @@ public class ParsedCommand {
         this.arguments = new ArgumentMap();
         this.parent = parent;
         this.children = new ArrayList<>();
+
+        // We're a child of our parent, let's let it know!
+        this.parent.getChildren().add(this);
     }
 
     public String getName() {
@@ -78,6 +81,14 @@ public class ParsedCommand {
 
     public List<ParsedCommand> getChildren() {
         return children;
+    }
+
+    @Override public boolean equals(Object obj) {
+        return (obj instanceof ParsedCommand) && ((ParsedCommand) obj).name.equals(name);
+    }
+
+    @Override public int hashCode() {
+        return name.hashCode();
     }
 
 }
