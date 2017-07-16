@@ -37,6 +37,8 @@ public class CommandParser {
     }
 
     private List<ParsedCommand> parseCommandMethod(Method method) {
+        method.setAccessible(true);
+
         Command annotation = method.getAnnotation(Command.class);
         List<ParsedCommand> commands = new ArrayList<>();
 
@@ -44,14 +46,9 @@ public class CommandParser {
         String[] identifiers = annotation.identifier().split(" ");
 
         ParsedCommand currentParent = null;
-        Map<Integer, String> inlineMap = new HashMap<>();
 
         for (int i = 0; i < identifiers.length; i++) {
             String identifier = identifiers[i];
-            if (isInlineArgumentIdentifier(identifier)) {
-                inlineMap.put(i, identifier);
-                continue; // for now
-            }
 
             if (i == 0) {
                 currentParent =
@@ -71,7 +68,6 @@ public class CommandParser {
                 currentParent.setCommandMethod(method);
 
                 ArgumentMap argumentMap = parseArguments(method);
-                configureInlineArguments(argumentMap, inlineMap);
                 currentParent.setArguments(argumentMap);
             }
 
@@ -83,6 +79,8 @@ public class CommandParser {
     private ArgumentMap parseArguments(Method method) {
         ArgumentMap map = new ArgumentMap();
         Parameter[] parameters = method.getParameters();
+
+        int index = 0;
         for (Parameter parameter : parameters) {
             if (parameter.isAnnotationPresent(Arg.class)) {
                 Arg annotation = parameter.getAnnotation(Arg.class);
@@ -98,47 +96,19 @@ public class CommandParser {
                     new Argument(String.valueOf(annotation.name()), annotation.desc(), "false",
                         new String[] {});
                 map.addArgument(Boolean.class, argument);
+            } else if (parameter.isAnnotationPresent(InlineArg.class)) {
+                InlineArg annotation = parameter.getAnnotation(InlineArg.class);
+
+                InlineArgument argument = new InlineArgument(annotation.name(), annotation.desc(),
+                    annotation.validators());
+                argument.setIndex(index);
+                map.addArgument(parameter.getType(), argument);
             }
+
+            index++;
         }
 
         return map;
-    }
-
-    private void configureInlineArguments(ArgumentMap map, Map<Integer, String> inlineMap) {
-        for (Map.Entry<Integer, String> inlineEntry : inlineMap.entrySet()) {
-            String inlineArgName = inlineEntry.getValue();
-            Optional<Argument> argumentOfName =
-                map.getArgumentOfName(removeInlineMarkers(inlineArgName));
-            if (!argumentOfName.isPresent()) {
-                System.err.println("Argument '" + removeInlineMarkers(inlineArgName)
-                    + "' is inline, but no @Arg annotation exists for it!");
-                continue; // Skip this one
-            }
-
-            argumentOfName.get().setInline(true); // We'll set it inline
-        }
-    }
-
-    /**
-     * Checks whether an identifier is a definition for an inline argument.
-     * Inline arguments are put between {curly brackets}, and so we check for this here
-     * using the regular expression <code>\{(.*?}</code>.
-     *
-     * @param identifier The identifier to check.
-     * @return true if it's an inline argument identifier, and false if it's not.
-     */
-    private boolean isInlineArgumentIdentifier(String identifier) {
-        return identifier.matches("\\{(.*?)}");
-    }
-
-    /**
-     * Removes the curly brackets that denote an inline argument.
-     *
-     * @param identifier The identifier with the brackets on it.
-     * @return The identifier without the brackets.
-     */
-    private String removeInlineMarkers(String identifier) {
-        return identifier.replaceAll("[{}]", "");
     }
 
 }

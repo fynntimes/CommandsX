@@ -18,9 +18,15 @@ public class CommandTest {
         }
     }
 
-    @Command(identifier = "test {name} command", desc = "This is a test command.")
-    public void testCommand(@Arg(name = "name", desc = "The name of this test", inline = true) String name, @Flag(name = 'f', desc = "A flag") boolean flag) {
-        System.out.println("It is " + flag + " that your name is " + name);
+    @Test public void testCommandRun() {
+        CommandManager manager = new CommandManager();
+        manager.register(this);
+        manager.runCommand(null, "test real command Faizaan");
+    }
+
+    @Command(identifier = "test {type} command", desc = "This is a test command.")
+    public void testCommand(@InlineArg(name="type") String type, @Arg(name="name") String name) {
+        System.out.println("Hi, your " + type + " name is " + name);
     }
 
 }

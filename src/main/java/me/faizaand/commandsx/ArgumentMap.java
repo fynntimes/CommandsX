@@ -1,6 +1,6 @@
 package me.faizaand.commandsx;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -12,13 +12,13 @@ import java.util.Set;
  */
 public class ArgumentMap {
 
-    private Map<Class<?>, Argument> argumentMap;
+    private LinkedHashMap<Class<?>, Argument> argumentMap;
 
     /**
      * Initialize a blank argument map.
      */
     public ArgumentMap() {
-        this.argumentMap = new HashMap<>();
+        this.argumentMap = new LinkedHashMap<>();
     }
 
     /**
@@ -26,7 +26,7 @@ public class ArgumentMap {
      *
      * @param argumentMap The pre-defined argument map.
      */
-    public ArgumentMap(Map<Class<?>, Argument> argumentMap) {
+    public ArgumentMap(LinkedHashMap<Class<?>, Argument> argumentMap) {
         this.argumentMap = argumentMap;
     }
 
@@ -74,13 +74,32 @@ public class ArgumentMap {
             .flatMap(classArgumentEntry -> Optional.ofNullable(classArgumentEntry.getKey()));
     }
 
+    public int getMinimumArgs() {
+        int min = 0;
+        for (Argument argument : argumentMap.values()) {
+            if (!argument.getDefaultValue().equals("")) {
+                min++;
+            }
+        }
+
+        return min;
+    }
+
+    public int getMaximumArgs() {
+        return argumentMap.size();
+    }
+
+    public LinkedHashMap<Class<?>, Argument> getMap() {
+        return argumentMap;
+    }
+
     @Override public String toString() {
         StringBuilder builder = new StringBuilder();
         Set<Map.Entry<Class<?>, Argument>> entries = argumentMap.entrySet();
         for (Map.Entry<Class<?>, Argument> entry : entries) {
             builder.append(entry.getKey()).append(" -> ").append(entry.getValue().getName())
                 .append(" (").append(entry.getValue().getDescription()).append(")");
-            if(entry.getValue().isInline()) {
+            if (entry.getValue() instanceof InlineArgument) {
                 builder.append(" |INLINE|");
             }
             builder.append("\n");
