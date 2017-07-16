@@ -68,6 +68,8 @@ public class CommandParser {
             if ((identifiers.length - 1) == i) {
                 // This is our subcommand's definition.
                 // We can do our registration magic here.
+                currentParent.setCommandMethod(method);
+
                 ArgumentMap argumentMap = parseArguments(method);
                 configureInlineArguments(argumentMap, inlineMap);
                 currentParent.setArguments(argumentMap);

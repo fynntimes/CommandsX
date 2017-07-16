@@ -1,5 +1,6 @@
 package me.faizaand.commandsx;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,6 +18,7 @@ public class ParsedCommand {
     private ArgumentMap arguments;
     private ParsedCommand parent;
     private List<ParsedCommand> children;
+    private Method commandMethod;
 
     public ParsedCommand(String name, String description, String longDescription,
         String[] permissions, ArgumentMap arguments, ParsedCommand parent,
@@ -73,6 +75,10 @@ public class ParsedCommand {
         this.arguments = arguments;
     }
 
+    public List<ParsedCommand> getChildren() {
+        return children;
+    }
+
     public ParsedCommand getParent() {
         return parent;
     }
@@ -81,8 +87,12 @@ public class ParsedCommand {
         this.parent = parent;
     }
 
-    public List<ParsedCommand> getChildren() {
-        return children;
+    public Method getCommandMethod() {
+        return commandMethod;
+    }
+
+    public void setCommandMethod(Method commandMethod) {
+        this.commandMethod = commandMethod;
     }
 
     @Override public boolean equals(Object obj) {
