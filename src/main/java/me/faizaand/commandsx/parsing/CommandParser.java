@@ -14,6 +14,13 @@ import java.util.*;
  */
 public class CommandParser {
 
+    /**
+     * Looks through each method in a class for {@link Command} annotations. If they're present,
+     * they're registered as commands automatically.
+     *
+     * @param commandObj The object containing the command methods.
+     * @return A list containing the {@link ParsedCommand}s.
+     */
     public List<ParsedCommand> parse(Object commandObj) {
         List<ParsedCommand> commands = new ArrayList<>();
 
